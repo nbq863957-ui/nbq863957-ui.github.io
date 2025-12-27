@@ -3,43 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WLAN 极速冲刺</title>
+    <title>WLAN 极速冲刺 </title>
     <style>
-        :root { --primary: #3498db; --success: #2ecc71; --danger: #e74c3c; --bg: #f4f7f9; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; }
+        :root { --primary: #3498db; --success: #2ecc71; --danger: #e74c3c; --bg: #f4f7f9; --dark: #2c3e50; }
+        body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; color: #333; }
         
         /* 导航进度 */
-        .header { width: 100%; max-width: 600px; padding: 15px; display: flex; align-items: center; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); sticky; top:0; }
-        .progress-bar { height: 8px; background: #eee; border-radius: 4px; flex-grow: 1; margin: 0 15px; overflow: hidden; }
-        .progress-inner { height: 100%; background: var(--primary); transition: 0.3s; width: 0%; }
+        .header { width: 100%; max-width: 600px; padding: 15px; display: flex; align-items: center; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top:0; z-index: 100; }
+        .progress-bar { height: 100%; height: 8px; background: #eee; border-radius: 4px; flex-grow: 1; margin: 0 15px; overflow: hidden; }
+        .progress-inner { height: 100%; background: var(--primary); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); width: 0%; }
 
         /* 答题卡片 */
-        #quiz-container { width: 90%; max-width: 550px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); margin-top: 20px; }
-        .q-text { font-size: 1.2em; font-weight: bold; margin-bottom: 20px; line-height: 1.4; }
+        #quiz-container { width: 92%; max-width: 550px; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-top: 20px; margin-bottom: 40px; }
+        .q-text { font-size: 1.15em; font-weight: 600; margin-bottom: 20px; line-height: 1.5; color: var(--dark); }
         
         /* 选项列表 */
-        .options-list { display: flex; flex-direction: column; gap: 10px; }
-        .opt-item { padding: 15px; border: 2px solid #f0f0f0; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; }
-        .opt-item:hover { background: #f9f9f9; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .opt-item { padding: 14px 18px; border: 2px solid #edf2f7; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; }
+        .opt-item:hover { border-color: var(--primary); background: #f0f7ff; }
         
         /* 状态样式 */
-        .opt-item.correct { background: #d4edda !important; border-color: var(--success) !important; color: #155724; }
-        .opt-item.wrong { background: #f8d7da !important; border-color: var(--danger) !important; color: #721c24; }
+        .opt-item.correct { background: #e6fffa !important; border-color: var(--success) !important; color: #234e52; }
+        .opt-item.wrong { background: #fff5f5 !important; border-color: var(--danger) !important; color: #742a2a; }
         .opt-item.missed { border-color: var(--success); border-style: dashed; background: #f0fff4; }
-        .opt-item.selected { border-color: var(--primary); background: #ebf8ff; }
+        .opt-item.selected { border-color: var(--primary); background: #ebf8ff; box-shadow: 0 0 0 1px var(--primary); }
 
         input { margin-right: 12px; transform: scale(1.2); pointer-events: none; }
 
         /* 按钮区 */
-        .actions { margin-top: 25px; display: flex; gap: 10px; padding-top: 15px; border-top: 1px solid #eee; }
-        .btn { padding: 12px; border: none; border-radius: 6px; cursor: pointer; flex: 1; font-weight: bold; font-size: 1em; }
+        .actions { margin-top: 25px; display: flex; gap: 12px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; flex: 1; font-weight: bold; font-size: 1em; transition: opacity 0.2s; }
+        .btn:active { opacity: 0.8; }
         .btn-blue { background: var(--primary); color: white; }
-        .btn-next { background: #34495e; color: white; }
+        .btn-next { background: var(--dark); color: white; }
         
         /* 解析与结果 */
-        .ans-note { margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 6px; color: #856404; }
+        .ans-note { margin-top: 15px; padding: 15px; background: #fffaf0; border-left: 4px solid #ed8936; border-radius: 4px; color: #7b341e; font-size: 0.95em; }
         .result-screen { text-align: center; }
-        .wrong-record { text-align: left; margin-top: 20px; padding: 10px; background: #fff5f5; border-radius: 6px; font-size: 0.9em; }
+        
+        /* 错题回顾卡片升级 */
+        .wrong-record { text-align: left; margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #fed7d7; border-radius: 10px; font-size: 0.92em; line-height: 1.6; }
+        .wrong-q { font-weight: bold; color: var(--dark); margin-bottom: 8px; display: block; }
+        .wrong-user { color: var(--danger); display: block; }
+        .wrong-ans { color: var(--success); display: block; font-weight: 500; }
         
         .hidden { display: none !important; }
     </style>
@@ -47,14 +53,14 @@
 <body>
 
     <div class="header">
-        <b onclick="location.reload()" style="cursor:pointer">HOME</b>
+        <b onclick="location.reload()" style="cursor:pointer; color:var(--primary)">HOME</b>
         <div class="progress-bar"><div id="p-inner" class="progress-inner"></div></div>
-        <span id="p-text">0/0</span>
+        <span id="p-text" style="font-size: 0.85em; color: #666; font-variant-numeric: tabular-nums;">0/0</span>
     </div>
 
     <div id="quiz-container">
         <div id="m-screen">
-            <h3 style="text-align:center">选择题库</h3>
+            <h3 style="text-align:center; margin-top:0">请选择模块</h3>
             <div class="options-list">
                 <button class="btn btn-blue" onclick="loadSet('single_choice')">单选题</button>
                 <button class="btn btn-blue" onclick="loadSet('multi_choice')">多选题</button>
@@ -76,21 +82,26 @@
         </div>
 
         <div id="r-screen" class="hidden result-screen">
-            <h2>训练结束</h2>
-            <h1 id="r-score" style="color:var(--primary)">0%</h1>
+            <h2 style="margin-top:0">训练达成！</h2>
+            <div style="font-size: 0.9em; color:#666">本次得分</div>
+            <h1 id="r-score" style="color:var(--primary); margin: 10px 0; font-size: 3em;">0%</h1>
             <div id="r-wrongs"></div>
-            <button class="btn btn-blue" style="width:100%; margin-top:20px" onclick="location.reload()">重新开始</button>
+            <button class="btn btn-blue" style="width:100%; margin-top:25px; padding: 15px;" onclick="location.reload()">返回主页</button>
         </div>
     </div>
 
     <script>
         let data = {}, questions = [], curr = 0, score = 0, wrongs = [], mode = '', answered = false;
 
-        fetch('questions.json').then(r => r.json()).then(d => data = d);
+        // 加载数据
+        fetch('questions.json')
+            .then(r => r.json())
+            .then(d => data = d)
+            .catch(e => console.error("数据加载失败，请检查 questions.json 文件", e));
 
         function loadSet(m) {
+            if(!data[m] || data[m].length === 0) return alert("该题库暂无题目");
             mode = m; questions = data[m]; curr = 0; score = 0; wrongs = [];
-            if(!questions) return alert("题库为空");
             document.getElementById('m-screen').classList.add('hidden');
             document.getElementById('q-screen').classList.remove('hidden');
             render();
@@ -101,23 +112,28 @@
             const q = questions[curr];
             document.getElementById('q-title').innerText = `${curr+1}. ${q.question}`;
             document.getElementById('q-ans').classList.add('hidden');
-            document.getElementById('p-inner').style.width = (curr/questions.length)*100 + '%';
-            document.getElementById('p-text').innerText = `${curr+1}/${questions.length}`;
+            
+            // 更新进度
+            const progress = (curr / questions.length) * 100;
+            document.getElementById('p-inner').style.width = progress + '%';
+            document.getElementById('p-text').innerText = `${curr+1} / ${questions.length}`;
             
             const box = document.getElementById('q-opts');
             box.innerHTML = '';
             
-            // 按钮重置
             document.getElementById('btn-submit').classList.add('hidden');
             document.getElementById('btn-show').classList.add('hidden');
             document.getElementById('btn-next').classList.add('hidden');
 
             if(['single_choice','multi_choice','true_false'].includes(mode)) {
                 q.options.forEach(o => {
-                    const key = o.split('.')[0].trim();
+                    const key = o.split('.')[0].trim().toUpperCase(); // 获取 A, B, C...
                     const div = document.createElement('div');
                     div.className = 'opt-item';
-                    div.innerHTML = `<input type="${mode==='multi_choice'?'checkbox':'radio'}" name="opt" value="${key}"><span>${o}</span>`;
+                    div.innerHTML = `
+                        <input type="${mode==='multi_choice'?'checkbox':'radio'}" name="opt" value="${key}">
+                        <span>${o}</span>
+                    `;
                     
                     div.onclick = () => {
                         if(answered && mode !== 'multi_choice') return;
@@ -135,18 +151,18 @@
                     box.appendChild(div);
                 });
             } else {
+                // 填空或简答显示“显示答案”按钮
                 document.getElementById('btn-show').classList.remove('hidden');
             }
         }
 
-        // 单选/判断立即判定
         function checkInstant(key, el) {
             answered = true;
             const q = questions[curr];
-            if(key === q.answer) {
+            if(key === q.answer.toUpperCase()) {
                 el.classList.add('correct');
                 score++;
-                setTimeout(next, 500);
+                setTimeout(next, 600);
             } else {
                 el.classList.add('wrong');
                 wrongs.push({...q, user: key});
@@ -155,13 +171,13 @@
             }
         }
 
-        // 多选手动判定
         function checkMulti() {
             if(answered) return;
             answered = true;
             const q = questions[curr];
-            const selected = Array.from(document.querySelectorAll('input:checked')).map(i => i.value).sort().join('');
-            const right = q.answer.split('').sort().join('');
+            const selectedArr = Array.from(document.querySelectorAll('input:checked')).map(i => i.value).sort();
+            const selected = selectedArr.join('');
+            const right = q.answer.toUpperCase().split('').sort().join('');
 
             document.getElementById('btn-submit').classList.add('hidden');
 
@@ -170,7 +186,7 @@
                 document.querySelectorAll('.opt-item').forEach(el => {
                     if(selected.includes(el.querySelector('input').value)) el.classList.add('correct');
                 });
-                setTimeout(next, 500);
+                setTimeout(next, 600);
             } else {
                 wrongs.push({...q, user: selected});
                 document.querySelectorAll('.opt-item').forEach(el => {
@@ -183,16 +199,16 @@
         }
 
         function checkText() {
-            document.getElementById('q-ans').innerHTML = "<b>正确答案：</b><br>" + questions[curr].answer;
+            document.getElementById('q-ans').innerHTML = "<b>正确参考答案：</b><br>" + questions[curr].answer;
             document.getElementById('q-ans').classList.remove('hidden');
             document.getElementById('btn-show').classList.add('hidden');
             document.getElementById('btn-next').classList.remove('hidden');
-            score++; // 填空默认计分
+            score++; 
         }
 
         function showRight(ans) {
             document.querySelectorAll('.opt-item').forEach(el => {
-                if(ans === el.querySelector('input').value) el.classList.add('missed');
+                if(ans.toUpperCase() === el.querySelector('input').value) el.classList.add('missed');
             });
         }
 
@@ -205,14 +221,38 @@
         function finish() {
             document.getElementById('q-screen').classList.add('hidden');
             document.getElementById('r-screen').classList.remove('hidden');
+            document.getElementById('p-inner').style.width = '100%';
             document.getElementById('r-score').innerText = Math.round((score/questions.length)*100) + '%';
             
             const box = document.getElementById('r-wrongs');
-            box.innerHTML = '<h4>错题回顾：</h4>';
-            if(wrongs.length === 0) box.innerHTML += '<p>全对！太棒了！</p>';
-            wrongs.forEach(w => {
-                box.innerHTML += `<div class="wrong-record"><b>问：</b>${w.question}<br><span style="color:var(--danger)">你选：${w.user || '无'}</span> | <span style="color:var(--success)">正解：${w.answer}</span></div>`;
-            });
+            box.innerHTML = '<h4 style="text-align:left; margin: 20px 0 10px 0;">错题清单：</h4>';
+            
+            if(wrongs.length === 0) {
+                box.innerHTML += '<div style="padding:20px; color:var(--success)">★ 完美通关，没有错题！</div>';
+            } else {
+                wrongs.forEach(w => {
+                    // 核心逻辑：获取选项的完整文本内容
+                    const getFullText = (keys) => {
+                        if (!w.options || !keys) return keys; 
+                        return w.options
+                            .filter(opt => {
+                                const letter = opt.split('.')[0].trim().toUpperCase();
+                                return keys.toUpperCase().includes(letter);
+                            })
+                            .join(' | '); 
+                    };
+
+                    const userDisplay = getFullText(w.user);
+                    const answerDisplay = getFullText(w.answer);
+
+                    box.innerHTML += `
+                        <div class="wrong-record">
+                            <span class="wrong-q">${w.question}</span>
+                            <span class="wrong-user">您的选择：${userDisplay || '未作答'}</span>
+                            <span class="wrong-ans">正确答案：${answerDisplay}</span>
+                        </div>`;
+                });
+            }
         }
     </script>
 </body>
