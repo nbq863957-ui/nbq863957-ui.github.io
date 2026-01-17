@@ -29,7 +29,7 @@ jobs:
 
     - name: Install Playwright Browsers
       run: |
-        playwright install chromium
+        python -m playwright install chromium --with-deps
 
     - name: Run Scraper
       env:
