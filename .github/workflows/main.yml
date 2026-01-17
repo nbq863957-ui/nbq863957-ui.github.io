@@ -1,0 +1,59 @@
+name: Grade Auto Check
+
+on:
+  schedule:
+    # 每30分钟运行一次 (注意：这是UTC时间，北京时间需+8)
+    - cron: '0 0-15 * * *'
+  workflow_dispatch: # 允许手动点击按钮触发
+
+permissions:
+  contents: write # 允许 Action 修改仓库文件(为了更新 json)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install Playwright Browsers
+      run: |
+        playwright install chromium
+
+    - name: Run Scraper
+      env:
+        # 将 GitHub Secrets 注入到环境变量
+        STU_ID: ${{ secrets.STU_ID }}
+        STU_PWD: ${{ secrets.STU_PWD }}
+        WX_APPID: ${{ secrets.WX_APPID }}
+        WX_SECRET: ${{ secrets.WX_SECRET }}
+        WX_OPENID: ${{ secrets.WX_OPENID }}
+        WX_TEMPLATE_ID: ${{ secrets.WX_TEMPLATE_ID }}
+      run: python main.py
+
+    - name: Check for changes
+      id: git-check
+      run: |
+        git config user.name 'github-actions[bot]'
+        git config user.email 'github-actions[bot]@users.noreply.github.com'
+        # 检查 grades.json 是否有变化
+        if [ -n "$(git status --porcelain grades.json)" ]; then
+          echo "changes=true" >> $GITHUB_OUTPUT
+          git add grades.json
+          git commit -m "Update grades data [skip ci]"
+          git push
+        else
+          echo "changes=false" >> $GITHUB_OUTPUT
+          echo "No changes found"
+        fi
