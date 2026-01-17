@@ -18,7 +18,7 @@ DATA_FILE = "grades.json"
 def fetch_grades():
     print("正在尝试登录教务系统...")
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False) # 可以改成 True 让他后台运行
+        browser = p.chromium.launch(headless=True) # 可以改成 True 让他后台运行
         context = browser.new_context()
         page = context.new_page()
         
@@ -150,4 +150,5 @@ def main():
         send_wechat(current_grades)
 
 if __name__ == "__main__":
+
     main()
