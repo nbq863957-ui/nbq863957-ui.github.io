@@ -9,49 +9,46 @@ on:
 permissions:
   contents: write # 允许 Action 修改仓库文件(为了更新 json)
 
+
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-    - name: Install dependencies and Playwright
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        # 确保在这个步骤里紧接着安装浏览器
-        python -m playwright install chromium --with-deps
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests playwright beautifulsoup4
+          python -m playwright install chromium --with-deps
 
-    - name: Run Scraper
-      env:
-        # 将 GitHub Secrets 注入到环境变量
-        STU_ID: ${{ secrets.STU_ID }}
-        STU_PWD: ${{ secrets.STU_PWD }}
-        WX_APPID: ${{ secrets.WX_APPID }}
-        WX_SECRET: ${{ secrets.WX_SECRET }}
-        WX_OPENID: ${{ secrets.WX_OPENID }}
-        WX_TEMPLATE_ID: ${{ secrets.WX_TEMPLATE_ID }}
-      run: python main.py
+      - name: Run grade checker
+        env:
+          STU_ID: ${{ secrets.STU_ID }}
+          STU_PWD: ${{ secrets.STU_PWD }}
+          WX_APPID: ${{ secrets.WX_APPID }}
+          WX_SECRET: ${{ secrets.WX_SECRET }}
+          WX_OPENID: ${{ secrets.WX_OPENID }}
+          WX_TEMPLATE_ID: ${{ secrets.WX_TEMPLATE_ID }}
+        run: |
+          python main.py
 
-    - name: Check for changes
-      id: git-check
-      run: |
-        git config user.name 'github-actions[bot]'
-        git config user.email 'github-actions[bot]@users.noreply.github.com'
-        # 检查 grades.json 是否有变化
-        if [ -n "$(git status --porcelain grades.json)" ]; then
-          echo "changes=true" >> $GITHUB_OUTPUT
-          git add grades.json
-          git commit -m "Update grades data [skip ci]"
-          git push
-        else
-          echo "changes=false" >> $GITHUB_OUTPUT
-          echo "No changes found"
-        fi
+      - name: Commit grades.json if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ -n "$(git status --porcelain grades.json)" ]; then
+            git add grades.json
+            git commit -m "Update grades data [skip ci]"
+            git push
+          else
+            echo "No grade changes"
+          fi
