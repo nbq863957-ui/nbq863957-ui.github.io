@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的成绩单</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f5f7fa;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* 列表容器 */
+        #list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* 成绩条目卡片 */
+        .item {
+            background: #fff;
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.1s;
+        }
+
+        .item:active {
+            transform: scale(0.98);
+            background-color: #fcfcfc;
+        }
+
+        .course-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #444;
+            flex: 1;
+            padding-right: 10px;
+        }
+
+        .score {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        /* 状态提示 */
+        .loading, .error, .empty {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2>我的成绩单</h2>
+    </header>
+
+    <div id="list">
+        <div class="loading">正在加载成绩...</div>
+    </div>
+</div>
+
+<script>
+    // 修正后的 JavaScript
+    fetch('./grades.json?t=' + Date.now())
+      .then(res => {
+          if (!res.ok) throw new Error('网络请求错误');
+          return res.json();
+      })
+      .then(data => {
+        const el = document.getElementById('list');
+        el.innerHTML = '';
+
+        if (!data || data.length === 0) {
+          el.innerHTML = '<div class="empty">暂无成绩数据</div>';
+          return;
+        }
+
+        data.forEach(g => {
+          const div = document.createElement('div');
+          div.className = 'item';
+          
+          // 注意这里：字段名必须与你的 JSON 匹配
+          // g.tabGrid_kcmc 对应 课程名称
+          // g.tabGrid_cj 对应 成绩
+          div.innerHTML = `
+            <span class="course-name">${g.tabGrid_kcmc}</span>
+            <span class="score">${g.tabGrid_cj}</span>
+          `;
+          el.appendChild(div);
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        document.getElementById('list').innerHTML = '<div class="error">加载失败，请检查网络或 JSON 文件</div>';
+      });
+</script>
+
+</body>
+</html>
