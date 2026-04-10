@@ -1,267 +1,588 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giffgaff 保号助手</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container { 
-            background: white;
-            padding: 40px 30px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 400px;
-            width: 100%;
-        }
-        h1 { 
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .info-box {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #555;
-        }
-        .info-box strong {
-            color: #333;
-            display: block;
-            margin-bottom: 5px;
-        }
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 18px 30px;
-            font-size: 18px;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-        button:active {
-            transform: translateY(0);
-        }
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        #status {
-            margin-top: 25px;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: 600;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-        #status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #c3e6cb;
-        }
-        #status.loading {
-            background: #fff3cd;
-            color: #856404;
-            border: 2px solid #ffeaa7;
-        }
-        #status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #f5c6cb;
-        }
-        .stats {
-            font-size: 13px;
-            margin-top: 8px;
-            opacity: 0.9;
-        }
-        .warning {
-            font-size: 12px;
-            color: #dc3545;
-            margin-top: 25px;
-            padding: 12px;
-            background: #fff5f5;
-            border-radius: 8px;
-            border-left: 4px solid #dc3545;
-            line-height: 1.6;
-        }
-        .warning strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .history {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        .history-title {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        .history-item {
-            font-size: 12px;
-            color: #888;
-            padding: 5px 0;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SBTI 逆向推演工具</title>
+  <style>
+    :root {
+      --bg: #f6faf6;
+      --panel: #ffffff;
+      --text: #1e2a22;
+      --muted: #6a786f;
+      --line: #dbe8dd;
+      --soft: #edf6ef;
+      --accent: #6c8d71;
+      --accent-strong: #4d6a53;
+      --shadow: 0 16px 40px rgba(47, 73, 55, 0.08);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(circle at top left, #f8fff8 0, #f6faf6 36%, #f2f7f3 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .shell {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 16px 56px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+    h1, h2, h3, p { margin: 0; line-height: 1.5; }
+    h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      color: var(--accent-strong);
+      margin-bottom: 8px;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--soft);
+      outline: none;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+    select:focus, input[type="number"]:focus {
+      border-color: var(--accent-strong);
+    }
+    button {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      background: var(--accent-strong);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 14px;
+      box-shadow: 0 12px 30px rgba(77, 106, 83, 0.18);
+      font-weight: 700;
+      width: 100%;
+      font-size: 16px;
+      transition: transform .16s ease;
+    }
+    button:hover { transform: translateY(-2px); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    
+    .result-list {
+      margin-top: 30px;
+      display: grid;
+      gap: 20px;
+    }
+    .result-item {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfdfb);
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(47, 73, 55, 0.05);
+    }
+    .dim-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .dim-pill {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      text-align: center;
+    }
+    .dim-pill.match-exact {
+      border-color: var(--accent);
+      background: var(--soft);
+      border-width: 2px;
+    }
+    .dim-pill .label {
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+    .dim-pill .value {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent-strong);
+    }
+    .dim-pill .score-range {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .alert {
+      padding: 16px;
+      border-radius: 12px;
+      background: #fdf3f2;
+      border: 1px solid #f2c9c7;
+      color: #b73229;
+      margin-top: 20px;
+      display: none;
+    }
+    .report-box {
+      margin-top: 24px;
+      padding: 0;
+      background: #fdfdfc;
+      border-radius: 12px;
+      border: 1px solid #1a1a1a;
+      overflow: hidden;
+      font-size: 14.5px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+    .report-header {
+      background: #191c1a;
+      color: #e5e5e5;
+      padding: 12px 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-family: Consolas, monospace;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .report-section {
+      padding: 20px 22px;
+      border-bottom: 1px dashed #d5d5d5;
+    }
+    .report-section:last-child { border-bottom: none; }
+    .report-title {
+      font-weight: 900;
+      color: #7b1d1d;
+      margin-bottom: 12px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .report-title span {
+      background: #fdfdfc;
+    }
+    .report-text {
+      color: #2b2b2b;
+      line-height: 1.85;
+      text-align: justify;
+    }
+    .report-text p { margin-bottom: 14px; margin-top: 0; }
+    .report-text strong {
+      color: #0b0b0b;
+      background: #f0e6e6;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .se-tips {
+      background: #f5f6f7;
+      border-left: 4px solid #7b1d1d;
+      padding: 16px 18px;
+      margin-top: 18px;
+      border-radius: 0 8px 8px 0;
+    }
+    .se-tips ul { 
+      margin: 0; padding: 0;
+    }
+    .se-tips li { 
+      margin-bottom: 12px; 
+      color:#1a1a1a; 
+      list-style: none;
+      line-height: 1.6;
+    }
+    .se-tips li:last-child { margin-bottom: 0; }
+    .se-tips li:before { 
+      content: '🚨'; 
+      margin-right: 8px; 
+      font-size: 14px; 
+    }
+    @media (max-width: 600px) {
+      .dim-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🇬🇧 Giffgaff 保号</h1>
-        <div class="subtitle">极简流量消耗工具</div>
-        
-        <div class="info-box">
-            <strong>本次将消耗：</strong>
-            约 120 KB 数据流量<br>
-            预计费用：2-3 便士 (£0.02-0.03)
-        </div>
-        
-        <button id="btn" onclick="consumeData()">
-            🚀 开始保号
-        </button>
-        
-        <div id="status"></div>
-        
-        <div class="history">
-            <div class="history-title">使用记录</div>
-            <div id="historyList"></div>
-        </div>
-        
-        <div class="warning">
-            <strong>⚠️ 使用前必读：</strong>
-            1. 关闭 Wi-Fi，确保使用移动数据<br>
-            2. 禁止其他应用联网权限<br>
-            3. 仅允许浏览器使用移动数据<br>
-            4. 完成后立即关闭移动数据
-        </div>
+  <div class="shell">
+    <div class="card">
+      <h1>SBTI 逆向推演工具</h1>
+      <p style="color: var(--muted); margin-bottom: 24px;">输入你知道的测试结果，逆向破解Ta的底层答题逻辑，由于维度路径极多，工具将提取最典型的一条“灵魂侧写”供以参考。</p>
+      
+      <div class="form-group">
+        <label for="inputType">目标人格类型（Target Type）</label>
+        <select id="inputType"></select>
+      </div>
+      
+      <div class="form-group">
+        <label for="inputSim">匹配度百分比 (例如: 90)</label>
+        <input type="number" id="inputSim" value="90" min="0" max="100" />
+      </div>
+      
+      <div class="form-group">
+        <label for="inputExact">精准命中维度数量 (例如: 12)</label>
+        <input type="number" id="inputExact" value="12" min="0" max="15" />
+      </div>
+      
+      <button id="calcBtn">开始逆向推导</button>
+      
+      <div id="alertBox" class="alert"></div>
+      
+      <div id="resultsContainer" class="result-list"></div>
     </div>
+  </div>
 
-    <script>
-        // 加载历史记录
-        function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('ggHistory') || '[]');
-            const historyList = document.getElementById('historyList');
-            
-            if (history.length === 0) {
-                historyList.innerHTML = '<div class="history-item">暂无记录</div>';
-                return;
+  <script>
+    const dimensionMeta = {
+      S1: { name: 'S1 自尊自信', model: '自我模型' },
+      S2: { name: 'S2 自我清晰度', model: '自我模型' },
+      S3: { name: 'S3 核心价值', model: '自我模型' },
+      E1: { name: 'E1 依恋安全感', model: '情感模型' },
+      E2: { name: 'E2 情感投入度', model: '情感模型' },
+      E3: { name: 'E3 边界与依赖', model: '情感模型' },
+      A1: { name: 'A1 世界观倾向', model: '态度模型' },
+      A2: { name: 'A2 规则与灵活度', model: '态度模型' },
+      A3: { name: 'A3 人生意义感', model: '态度模型' },
+      Ac1: { name: 'Ac1 动机导向', model: '行动驱力模型' },
+      Ac2: { name: 'Ac2 决策风格', model: '行动驱力模型' },
+      Ac3: { name: 'Ac3 执行模式', model: '行动驱力模型' },
+      So1: { name: 'So1 社交主动性', model: '社交模型' },
+      So2: { name: 'So2 人际边界感', model: '社交模型' },
+      So3: { name: 'So3 表达与真实度', model: '社交模型' }
+    };
+    const dimensionOrder = ['S1','S2','S3','E1','E2','E3','A1','A2','A3','Ac1','Ac2','Ac3','So1','So2','So3'];
+
+    const NORMAL_TYPES = [
+      { code: "CTRL", pattern: "HHH-HMH-MHH-HHH-MHM", cn: "拿捏者" },
+      { code: "ATM-er", pattern: "HHH-HHM-HHH-HMH-MHL", cn: "送钱者" },
+      { code: "Dior-s", pattern: "MHM-MMH-MHM-HMH-LHL", cn: "屌丝" },
+      { code: "BOSS", pattern: "HHH-HMH-MMH-HHH-LHL", cn: "领导者" },
+      { code: "THAN-K", pattern: "MHM-HMM-HHM-MMH-MHL", cn: "感恩者" },
+      { code: "OH-NO", pattern: "HHL-LMH-LHH-HHM-LHL", cn: "哦不人" },
+      { code: "GOGO", pattern: "HHM-HMH-MMH-HHH-MHM", cn: "行者" },
+      { code: "SEXY", pattern: "HMH-HHL-HMM-HMM-HLH", cn: "尤物" },
+      { code: "LOVE-R", pattern: "MLH-LHL-HLH-MLM-MLH", cn: "多情者" },
+      { code: "MUM", pattern: "MMH-MHL-HMM-LMM-HLL", cn: "妈妈" },
+      { code: "FAKE", pattern: "HLM-MML-MLM-MLM-HLH", cn: "伪人" },
+      { code: "OJBK", pattern: "MMH-MMM-HML-LMM-MML", cn: "无所谓人" },
+      { code: "MALO", pattern: "MLH-MHM-MLH-MLH-LMH", cn: "吗喽" },
+      { code: "JOKE-R", pattern: "LLH-LHL-LML-LLL-MLM", cn: "小丑" },
+      { code: "WOC!", pattern: "HHL-HMH-MMH-HHM-LHH", cn: "握草人" },
+      { code: "THIN-K", pattern: "HHL-HMH-MLH-MHM-LHH", cn: "思考者" },
+      { code: "SHIT", pattern: "HHL-HLH-LMM-HHM-LHH", cn: "愤世者" },
+      { code: "ZZZZ", pattern: "MHL-MLH-LML-MML-LHM", cn: "装死者" },
+      { code: "POOR", pattern: "HHL-MLH-LMH-HHH-LHL", cn: "贫困者" },
+      { code: "MONK", pattern: "HHL-LLH-LLM-MML-LHM", cn: "僧人" },
+      { code: "IMSB", pattern: "LLM-LMM-LLL-LLL-MLM", cn: "傻者" },
+      { code: "SOLO", pattern: "LML-LLH-LHL-LML-LHM", cn: "孤儿" },
+      { code: "FUCK", pattern: "MLL-LHL-LLM-MLL-HLH", cn: "草者" },
+      { code: "DEAD", pattern: "LLL-LLM-LML-LLL-LHM", cn: "死者" },
+      { code: "IMFW", pattern: "LLH-LHL-LML-LLL-MLL", cn: "废物" }
+    ];
+
+    const typeSelect = document.getElementById('inputType');
+    NORMAL_TYPES.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.code;
+      opt.textContent = `${t.code} (${t.cn})`;
+      typeSelect.appendChild(opt);
+    });
+
+    function levelNum(level) {
+      return { L: 1, M: 2, H: 3 }[level];
+    }
+    function numLevel(n) {
+      return { 1: 'L', 2: 'M', 3: 'H' }[n];
+    }
+    function parsePattern(pattern) {
+      return pattern.replace(/-/g, '').split('');
+    }
+
+    const btn = document.getElementById('calcBtn');
+    const alertBox = document.getElementById('alertBox');
+    const container = document.getElementById('resultsContainer');
+
+    function showError(msg) {
+      alertBox.textContent = msg;
+      alertBox.style.display = 'block';
+      container.innerHTML = '';
+      btn.disabled = false;
+      btn.textContent = '开始逆向推导';
+    }
+
+    btn.addEventListener('click', () => {
+      alertBox.style.display = 'none';
+      container.innerHTML = '';
+      btn.disabled = true;
+      btn.textContent = '搜索中...';
+
+      // Use timeout to allow UI update
+      setTimeout(() => {
+        runDFS();
+      }, 50);
+    });
+
+    const shortExp = {
+      S1: { 1: "容易自我怀疑/自卑", 2: "自信心看状态起伏", 3: "其实不自卑/内核稳" },
+      S2: { 1: "对自己比较迷茫", 2: "大方向清醒但偶尔摇摆", 3: "对自己要什么很清楚" },
+      S3: { 1: "不太卷，更偏“舒服优先”", 2: "间歇性努力", 3: "非常有野心和上进心" },
+      
+      E1: { 1: "容易敏感多想", 2: "有基本信任不走极端", 3: "内核稳/不患得患失" },
+      E2: { 1: "防备心重/爱意克制", 2: "投入但懂得留后手", 3: "重度投入/属于纯爱" },
+      E3: { 1: "非常需要陪伴/容易黏人", 2: "距离感适中", 3: "很需要个人空间" },
+      
+      A1: { 1: "不轻信别人/有防备", 2: "防备与柔软共存", 3: "单纯/愿意相信善意" },
+      A2: { 1: "反骨/讨厌死规矩", 2: "灵活变通", 3: "守规则/秩序感强" },
+      A3: { 1: "随性/注重体验", 2: "务实/为了填饱肚子", 3: "有使命感/有方向感" },
+      
+      Ac1: { 1: "怕麻烦/规避风险", 2: "求稳为前提", 3: "有上进心/利益导向" },
+      Ac2: { 1: "决策纠结/怕选错", 2: "权衡后能决断", 3: "决策果断不拖拉" },
+      Ac3: { 1: "不到死线不干/拖延", 2: "执行力全看状态", 3: "强执行力/不拖拉" },
+      
+      So1: { 1: "社交很不主动/慢热", 2: "不主动也不抗拒", 3: "社交主动/外向" },
+      So2: { 1: "容易交心/界限弱", 2: "分层管理圈子", 3: "边界感极强/有结界" },
+      So3: { 1: "说话直接/不喜欢装", 2: "懂得圆滑体面", 3: "顶级面具/难见真心" }
+    };
+
+    function numToLetter(n) { return n === 1 ? 'L' : n === 2 ? 'M' : 'H'; }
+
+    function generateProfiling(curVec, targetVector, targetCode, targetSim, targetExact, targetPattern) {
+      let v = {};
+      let targetV = {};
+      dimensionOrder.forEach((dim, i) => { 
+        v[dim] = curVec[i]; 
+        targetV[dim] = targetVector[i];
+      });
+      
+      let html = `<div class="report-box" style="margin-top: 30px;">`;
+      html += `<div class="report-header" style="background:#222;"><span style="color:#2dd4bf;">// 🧠 逆向推演简报</span></div>`;
+
+      // 1. 命中的真实情况 (原 第三部分)
+      html += `<div class="report-section">`;
+      html += `<div class="report-title">🔁 一、反推 Ta 的真实情况</div>`;
+      html += `<div class="report-text">`;
+      html += `<p>因为 Ta 命中 ${targetExact}/15，</p>`;
+      html += `<p>✅ <strong>Ta 大概率“完全符合”的维度：</strong></p>`;
+      
+      const groups = [
+        { name: '🧍 自我（S）', keys: ['S1','S2','S3'] },
+        { name: '❤️ 情感（E）', keys: ['E1','E2','E3'] },
+        { name: '🌍 世界观（A）', keys: ['A1','A2','A3'] },
+        { name: '⚡ 行动（Ac）', keys: ['Ac1','Ac2','Ac3'] },
+        { name: '👥 社交（So）', keys: ['So1','So2','So3'] }
+      ];
+
+      groups.forEach(g => {
+        let matches = g.keys.filter(k => v[k] === targetV[k]);
+        if(matches.length > 0) {
+          html += `<div style="margin-top:14px; padding-left: 12px; border-left: 3px solid #14b8a6;">`;
+          html += `<div style="font-weight:bold; margin-bottom:4px;">${g.name}</div>`;
+          matches.forEach(k => {
+            html += `<span style="display:inline-block; margin-right: 16px; margin-bottom:4px; font-size:13px;">${k} = ${numToLetter(v[k])} → <span style="color:#475569;">${shortExp[k][v[k]]}</span></span><br>`;
+          });
+          html += `</div>`;
+        }
+      });
+      html += `</div></div>`;
+
+      // 2. 差距在哪里
+      if (targetExact < 15) {
+        html += `<div class="report-section" style="background:#fffcf2;">`;
+        html += `<div class="report-title" style="color:#b45309;">⚠️ 二、那“差的 ${15 - targetExact} 维”在哪？</div>`;
+        html += `<div class="report-text">`;
+        html += `<p>👉 Ta 不是100%纯血 ${targetCode}，这 ${15 - targetExact} 维可能是👇</p>`;
+        
+        let diffCount = 1;
+        dimensionOrder.forEach(k => {
+          if(v[k] !== targetV[k]) {
+            let numCircle = String.fromCharCode(9311 + diffCount); 
+            if(diffCount > 20) numCircle = `(${diffCount})`;
+            html += `<div class="se-tips" style="border-left-color: #b45309; background: #fffbeb;">`;
+            html += `<strong style="background:none; color:#92400e;">${numCircle} ${k}（${dimensionMeta[k].name.split(' ')[1]}）</strong><br>`;
+            html += `<div style="margin-top:6px; color:#78350f;">标准答案：${numToLetter(targetV[k])}</div>`;
+            html += `<div style="color:#d97706; font-weight:bold;">Ta可能是：${numToLetter(v[k])}</div>`;
+            html += `<div style="margin-top:6px;">👉 倾向：<strong>${shortExp[k][v[k]]}</strong></div>`;
+            html += `</div>`;
+            diffCount++;
+          }
+        });
+        html += `</div></div>`;
+      }
+
+      // 3. 一句话反推
+      html += `<div class="report-section">`;
+      html += `<div class="report-title" style="color:#0f766e;">🧩 三、一句话反推 Ta</div>`;
+      html += `<div class="report-text">`;
+      html += `<p>👉 根据这些数据，Ta 大概率是这种人：</p>`;
+      html += `<ul style="color:#334155; line-height: 1.8;">`;
+      dimensionOrder.forEach(k => {
+         if (['S2','A1','Ac3','So2','E2', 'A2', 'So3'].includes(k) && Math.random() > 0.3) { 
+             html += `<li>${shortExp[k][v[k]]}</li>`;
+         }
+      });
+      html += `</ul>`;
+      
+      html += `</div></div>`;
+
+      // 4. 社会工程学
+      let tips = [];
+      if(v.Ac1 === 3) tips.push(`<strong>收买法则：</strong>本质是利益导向。别跟Ta空谈梦想，把实物筹码和最终利益拍在桌上，利益给够，办事效率极高。`);
+      if(v.Ac1 === 1) tips.push(`<strong>施压预警：</strong>极度规避风险。只要把后果往“可能背担子惹麻烦”的方向描述，就能轻易攻破Ta的防线让Ta就范。`);
+      if(v.Ac2 === 1) tips.push(`<strong>决策干预：</strong>重度选择纠结。别问Ta“要怎么办”，用强势且不容置疑的语气直接告诉Ta“我们现在就这么办”，Ta反而会有依赖感。`);
+      if(v.A2 === 1) tips.push(`<strong>反向逆毛摸：</strong>天生反骨。要让Ta干活，请使用请求甚至激将法，越是用强制命令越容易起反效果。`);
+      if(v.A2 === 3) tips.push(`<strong>强迫症利用：</strong>拿下Ta极其简单——按章办事、严谨排期。只要表现出极强的秩序感和靠谱度，Ta会把你划拨进安全圈。`);
+      if(v.E1 === 1) tips.push(`<strong>情感死穴：</strong>内心极度敏感。如果在冷战或沟通中玩小把戏，极易导致Ta的情绪体系崩塌或引发生理抗拒。`);
+      if(v.So3 === 3) tips.push(`<strong>谎言识破要点：</strong>高强度的面具防御者。Ta嘴里说的“场面话”听听即可，判断Ta的真实态度只看Ta的实际行动和利益偏向。`);
+      if(v.E2 === 3) tips.push(`<strong>杀猪盘预警：</strong>拥有绝境投入的纯爱潜质。一旦认定期望的伴侣，极易倾尽所有被榨干，但也带有极强的玉石俱焚属性。`);
+      if(v.So2 === 3) tips.push(`<strong>围城突破口：</strong>防卫墙极厚。装熟套近乎没有效果，唯一通关密码是展现【绝对的实力】，慕强是打动Ta的重要前提。`);
+      if(v.So3 === 1) tips.push(`<strong>直白斩杀原则：</strong>不要绕弯子！面对直肠子的人，任何兜圈子和暗示都会引起Ta的烦躁，直接把诉求甩在桌上沟通。`);
+
+      if(tips.length > 0) {
+        html += `<div class="report-section">`;
+        html += `<div class="report-title" style="color:#b45309;">🎯 四、社会工程学：行为与攻防特质</div>`;
+        html += `<div class="se-tips" style="border-left-color: #b45309; background: #fffcf2;"><ul>`;
+        tips.forEach(t => { html += `<li>${t}</li>`; });
+        html += `</ul></div></div>`;
+      }
+
+      html += `</div>`;
+      return html;
+    }
+
+    function runDFS() {
+      const targetCode = typeSelect.value;
+      const targetSim = parseInt(document.getElementById('inputSim').value);
+      const targetExact = parseInt(document.getElementById('inputExact').value);
+
+      if (isNaN(targetSim) || targetSim < 0 || targetSim > 100) return showError('填写的匹配度有误，必须在 0 - 100 之间');
+      if (isNaN(targetExact) || targetExact < 0 || targetExact > 15) return showError('填写的精准命中数量有误，必须在 0 - 15 之间');
+
+      const targetTypeNode = NORMAL_TYPES.find(t => t.code === targetCode);
+      const targetVector = parsePattern(targetTypeNode.pattern).map(levelNum);
+
+      const validDistances = [];
+      for (let d = 0; d <= 30; d++) {
+        if (Math.max(0, Math.round((1 - d / 30) * 100)) === targetSim) {
+          validDistances.push(d);
+        }
+      }
+      if (validDistances.length === 0) {
+        return showError(`算法内不存在 ${targetSim}% 这个匹配度数值，请检查输入（例如常见的有 93, 90, 87, 83...）。`);
+      }
+
+      const minDist = Math.min(...validDistances);
+      const maxDist = Math.max(...validDistances);
+
+      const solutions = [];
+      const MAX_SOLUTIONS = 1;
+      const curVec = new Array(15);
+
+      function dfs(index, currentDist, currentExact) {
+        if (solutions.length >= MAX_SOLUTIONS) return;
+
+        let remaining = 15 - index;
+        if (currentExact + remaining < targetExact) return; 
+        if (currentExact > targetExact) return;
+        if (currentDist + remaining * 2 < minDist) return; 
+        if (currentDist > maxDist) return;
+
+        if (index === 15) {
+          if (!validDistances.includes(currentDist)) return;
+          
+          const ranked = NORMAL_TYPES.map(type => {
+            const vector = parsePattern(type.pattern).map(levelNum);
+            let distance = 0;
+            let exact = 0;
+            for (let i = 0; i < vector.length; i++) {
+              const diff = Math.abs(curVec[i] - vector[i]);
+              distance += diff;
+              if (diff === 0) exact += 1;
             }
-            
-            historyList.innerHTML = history.slice(-5).reverse().map(item => 
-                `<div class="history-item">✓ ${item.date} - ${item.size} KB</div>`
-            ).join('');
+            const similarity = Math.max(0, Math.round((1 - distance / 30) * 100));
+            return { code: type.code, distance, exact, similarity };
+          }).sort((a, b) => {
+            if (a.distance !== b.distance) return a.distance - b.distance;
+            if (b.exact !== a.exact) return b.exact - a.exact;
+            return b.similarity - a.similarity;
+          });
+
+          // Needs to be ranked first, OR tied and ends up first logic-wise
+          // Wait, the sorting behavior for ties relies heavily on the original order.
+          // Since our logic replicates original precisely, checking ranked[0] is correct.
+          if (ranked[0].code === targetCode) {
+            solutions.push([...curVec]);
+          }
+          return;
+        }
+
+        for (let val = 1; val <= 3; val++) {
+          let diff = Math.abs(val - targetVector[index]);
+          let newDist = currentDist + diff;
+          let newExact = currentExact + (diff === 0 ? 1 : 0);
+          curVec[index] = val;
+          dfs(index + 1, newDist, newExact);
+        }
+      }
+
+      const startTime = performance.now();
+      dfs(0, 0, 0);
+      const elapsed = (performance.now() - startTime).toFixed(1);
+
+      btn.disabled = false;
+      btn.textContent = '开始逆向推导';
+
+      if (solutions.length === 0) {
+        showError(`未找到符合条件的答案路线 (耗时 ${elapsed}ms)，请检查“匹配度”与“精准命中数量”是否符合实际测试结果。可能是匹配度和命中数组合在逻辑上无法成立。`);
+        return;
+      }
+
+      const scoreRangeMap = { '1': '2~3分', '2': '4分', '3': '5~6分' };
+      const levelMap = { '1': 'L', '2': 'M', '3': 'H' };
+
+      let html = `<div class="success-info"><strong>搜索完毕 (耗时 ${elapsed}ms)</strong>。发现符合条件的轨迹，已提取最典型的推演档案：</div>`;
+      
+      solutions.forEach((sol, solIdx) => {
+        let dimHtml = '';
+        for (let i = 0; i < 15; i++) {
+          let targetVal = targetVector[i];
+          let userVal = sol[i];
+          let isExact = (targetVal === userVal);
+          let dimKey = dimensionOrder[i];
+          dimHtml += `
+            <div class="dim-pill ${isExact ? 'match-exact' : ''}">
+              <div class="label">${dimensionMeta[dimKey].name}</div>
+              <div class="value">${levelMap[userVal]}</div>
+              <div class="score-range">${scoreRangeMap[userVal]}</div>
+            </div>
+          `;
         }
         
-        // 保存历史记录
-        function saveHistory(size) {
-            const history = JSON.parse(localStorage.getItem('ggHistory') || '[]');
-            const now = new Date();
-            const dateStr = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
-            
-            history.push({
-                date: dateStr,
-                size: size,
-                timestamp: now.getTime()
-            });
-            
-            // 只保留最近20条记录
-            if (history.length > 20) {
-                history.shift();
-            }
-            
-            localStorage.setItem('ggHistory', JSON.stringify(history));
-            loadHistory();
-        }
+        const profileHtml = generateProfiling(sol, targetVector, targetCode, targetSim, targetExact, targetTypeNode.pattern);
         
-        function consumeData() {
-            const btn = document.getElementById('btn');
-            const status = document.getElementById('status');
-            
-            btn.disabled = true;
-            status.className = 'loading';
-            status.innerHTML = "📡 正在连接服务器...<br><div class='stats'>请保持网络连接</div>";
-
-            // 防缓存：添加时间戳
-            const timestamp = new Date().getTime();
-            const randomStr = Math.random().toString(36).substring(7);
-            const fileUrl = `payload.txt?t=${timestamp}&r=${randomStr}`; 
-
-            const startTime = new Date().getTime();
-
-            fetch(fileUrl, {
-                cache: 'no-store',  // 强制不使用缓存
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache'
-                }
-            })
-                .then(response => {
-                    if (!response.ok) throw new Error('网络请求失败');
-                    return response.blob();
-                })
-                .then(blob => {
-                    const sizeInKB = (blob.size / 1024).toFixed(2);
-                    const duration = ((new Date().getTime() - startTime) / 1000).toFixed(2);
-                    
-                    status.className = 'success';
-                    status.innerHTML = `
-                        ✅ 保号成功！
-                        <div class='stats'>
-                            已消耗：${sizeInKB} KB<br>
-                            耗时：${duration} 秒
-                        </div>
-                    `;
-                    
-                    // 保存记录
-                    saveHistory(sizeInKB);
-                    
-                    btn.disabled = false;
-                    btn.innerText = "🔄 再次保号";
-                })
-                .catch(error => {
-                    status.className = 'error';
-                    status.innerHTML = `
-                        ❌ 操作失败
-                        <div class='stats'>${error.message}</div>
-                    `;
-                    btn.disabled = false;
-                });
-        }
-        
-        // 页面加载时显示历史记录
-        window.onload = loadHistory;
-    </script>
+        html += `
+          <div class="result-item">
+            <h3>逆向推演档案库路线</h3>
+            <div class="dim-grid">
+              ${dimHtml}
+            </div>
+            ${profileHtml}
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+  </script>
 </body>
 </html>
